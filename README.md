@@ -27,8 +27,8 @@ Codex Guard 是一个面向 Windows 的本地权限管理器，用来把 Codex �
 ## 首次部署
 
 1. 关闭 ChatGPT/Codex、PowerShell、命令提示符、Git Bash、Windows Terminal、Git 和 WSL。已有进程可能持有修改或删除句柄，Codex Guard 会拒绝在这些进程运行时改 ACL。
-2. 将发布包放在本机 NTFS 目录，核对包内 `SHA256SUMS.txt`。
-3. 保持发布包内三个 EXE 在同一目录，在管理员 Windows 会话中双击 `CodexGuard.exe`，选择“安装 / 修复 Codex Guard”。不要从终端启动；安装会把主程序、独立核查器和验收探针一起复制到受保护的 Program Files 目录。
+2. 选择一种可直接使用的 Release 资产：下载单文件 `CodexGuard.exe` 后直接双击，或下载 `CodexGuard-0.6.7-preview-portable.zip`、完整解压后双击根目录的 `CodexGuard.exe`。核对 Release 的 `SHA256SUMS.txt`；不要从 ZIP 预览窗口内运行。
+3. 单文件版本会校验内嵌完整包，释放到当前 admin 的 `%LOCALAPPDATA%\Codex Guard\ReleaseCache` 后启动，不会自动删除该缓存；ZIP 版本则要求包内三个 EXE 保持在同一目录。在管理员 Windows 会话中选择“安装 / 修复 Codex Guard”。不要从终端启动；安装会把主程序、独立核查器和验收探针一起复制到受保护的 Program Files 目录。
 4. 安装向导创建标准账户 `CodexWorker`，安装受保护的程序文件，并配置 UAC 安全桌面。输入的是新建 Worker 的密码；管理员密码只应输入 Windows 自己的 UAC 安全桌面，Codex Guard 从不接收或保存管理员密码。
 5. 若结果窗口提示必须重启 Windows，先执行“重新启动”（不要只关机再开机）；重启前 Codex Guard 会拒绝权限操作。随后登录一次 `CodexWorker`，启动并登录官方 ChatGPT 桌面应用、选择 Codex，完成该用户的应用包注册和官方 Windows `elevated` 沙箱初始化。
 6. 再次关闭 ChatGPT/Codex 和所有终端，切回 `admin` 桌面，以普通方式（不要右键“以管理员身份运行”）启动 Codex Guard，运行“UAC 绑定 / 修复全部权限”，把新建的 `CodexSandboxUsers` 组绑定到 ACL。

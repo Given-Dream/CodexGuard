@@ -2,6 +2,8 @@ using CodexGuard.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
 
 namespace CodexGuard.App
@@ -31,6 +33,8 @@ namespace CodexGuard.App
                     return RunAdminOfflineReuse(args[1]);
                 if (args.Length >= 2 && string.Equals(args[0], "--request-delete", StringComparison.OrdinalIgnoreCase))
                     return SubmitDeletionRequest(args);
+                if (args.Length == 1 && string.Equals(args[0], "--package-self-test", StringComparison.OrdinalIgnoreCase))
+                    return RunPackageSelfTest();
                 if (args.Length == 1 && string.Equals(args[0], ShortcutService.ObsoleteWorkerCodexArguments, StringComparison.Ordinal))
                     return ShowRetiredWorkerLauncherNotice();
                 if (args.Length != 0)
@@ -110,6 +114,56 @@ namespace CodexGuard.App
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return 5;
+        }
+
+        private static int RunPackageSelfTest()
+        {
+            string directory = Path.GetDirectoryName(AppPaths.CurrentExecutable);
+            if (string.IsNullOrWhiteSpace(directory)) throw new InvalidDataException("无法确定发布目录。");
+            string sumsPath = Path.Combine(directory, "SHA256SUMS.txt");
+            if (!File.Exists(sumsPath)) throw new FileNotFoundException("发布包缺少 SHA256SUMS.txt。", sumsPath);
+
+            Dictionary<string, string> expected = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string line in File.ReadAllLines(sumsPath))
+            {
+                if (line.Length < 67 || line[64] != ' ' || line[65] != ' ') continue;
+                string hash = line.Substring(0, 64);
+                string name = line.Substring(66).Replace('/', Path.DirectorySeparatorChar);
+                expected[name] = hash;
+            }
+
+            string[] required =
+            {
+                AppInfo.ExecutableName,
+                AppInfo.ReviewerExecutableName,
+                AppInfo.AcceptanceExecutableName
+            };
+            foreach (string name in required)
+            {
+                string expectedHash;
+                if (!expected.TryGetValue(name, out expectedHash))
+                    throw new InvalidDataException("SHA256SUMS.txt 未记录必要文件：" + name);
+                string path = Path.Combine(directory, name);
+                if (!File.Exists(path)) throw new FileNotFoundException("发布包缺少必要文件。", path);
+                if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+                    throw new InvalidDataException("发布文件不能是符号链接或联接点：" + path);
+                string actualHash = ComputeFileHash(path);
+                if (!string.Equals(expectedHash, actualHash, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("发布文件 SHA-256 不匹配：" + name);
+            }
+            return 0;
+        }
+
+        private static string ComputeFileHash(string path)
+        {
+            using (SHA256 algorithm = SHA256.Create())
+            using (FileStream input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                byte[] hash = algorithm.ComputeHash(input);
+                StringBuilder text = new StringBuilder(hash.Length * 2);
+                foreach (byte value in hash) text.Append(value.ToString("x2"));
+                return text.ToString();
+            }
         }
 
         private static int RunAdminSoftwareMapping(string requestPath)

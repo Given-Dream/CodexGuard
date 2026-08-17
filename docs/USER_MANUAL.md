@@ -48,10 +48,10 @@ OpenAI Docs 将 `elevated` 列为首选的 Windows 原生沙箱；它使用专�
 
 ### 3.1 准备发布包
 
-1. 将 `CodexGuard-0.6.7-preview-*.zip` 保存到非系统盘，例如 `D:\codex\CodexGuard\release`。
-2. 核对发布时给出的 ZIP SHA-256。
-3. 解压到一个固定目录，不要只在压缩软件预览窗口里运行。
-4. 确认以下文件位于同一目录：
+1. 任选一种 Release 资产：单文件 `CodexGuard.exe`，或 `CodexGuard-0.6.7-preview-portable.zip`。
+2. 核对 Release 中 `SHA256SUMS.txt` 给出的 SHA-256。
+3. 单文件版可以直接双击；它会校验内嵌完整包，并释放到当前 admin 的 `%LOCALAPPDATA%\Codex Guard\ReleaseCache`。该缓存不会被启动器自动删除。
+4. ZIP 版必须完整解压到固定目录，不要只在压缩软件预览窗口里运行；确认以下文件位于同一目录：
    - `CodexGuard.exe`
    - `CodexGuard.ReadOnlyVerifier.exe`
    - `CodexGuard.AcceptanceProbe.exe`
@@ -65,7 +65,7 @@ OpenAI Docs 将 `elevated` 列为首选的 Windows 原生沙箱；它使用专�
 
 1. 登录 `admin`。
 2. 完全关闭 Codex 和所有终端/Git/WSL 进程。
-3. 双击解压目录中的 `CodexGuard.exe`。
+3. 双击下载的单文件 `CodexGuard.exe`，或 ZIP 完整解压目录中的 `CodexGuard.exe`。
 4. 打开“迁移与部署”页，点击“安装 / 修复 Codex Guard”。
 5. Windows UAC 出现在安全桌面时，确认目标为 Codex Guard，再输入 admin 凭据。
 6. 在“Codex Guard — 安装与修复”窗口核对：

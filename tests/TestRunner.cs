@@ -154,6 +154,29 @@ internal static class TestRunner
                 && operation.IndexOf("Windows 正在向现有子项传播继承 ACL", StringComparison.Ordinal) >= 0,
                 "The default read-only transaction no longer reports its current NTFS boundary.");
         });
+        Run("direct-use release launcher is complete and non-destructive", delegate
+        {
+            string projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar)).FullName;
+            string launcher = File.ReadAllText(Path.Combine(projectRoot, "tools", "ReleaseLauncher.cs"));
+            string package = File.ReadAllText(Path.Combine(projectRoot, "Package.ps1"));
+            Assert(launcher.IndexOf("CodexGuard.Payload", StringComparison.Ordinal) >= 0
+                && launcher.IndexOf("CodexGuard.ReadOnlyVerifier.exe", StringComparison.Ordinal) >= 0
+                && launcher.IndexOf("CodexGuard.AcceptanceProbe.exe", StringComparison.Ordinal) >= 0,
+                "The direct-use launcher no longer embeds and requires the complete package.");
+            Assert(launcher.IndexOf("FileMode.CreateNew", StringComparison.Ordinal) >= 0
+                && launcher.IndexOf("File.Delete(", StringComparison.Ordinal) < 0
+                && launcher.IndexOf("Directory.Delete(", StringComparison.Ordinal) < 0
+                && launcher.IndexOf("File.Move(", StringComparison.Ordinal) < 0
+                && launcher.IndexOf("Directory.Move(", StringComparison.Ordinal) < 0,
+                "The direct-use launcher can overwrite, move, or delete extracted files.");
+            Assert(launcher.IndexOf("Path.IsPathRooted", StringComparison.Ordinal) >= 0
+                && launcher.IndexOf("FileAttributes.ReparsePoint", StringComparison.Ordinal) >= 0
+                && launcher.IndexOf("HashesEqual", StringComparison.Ordinal) >= 0,
+                "The direct-use launcher no longer rejects unsafe paths or verifies extracted bytes.");
+            Assert(package.IndexOf("--self-test", StringComparison.Ordinal) >= 0
+                && package.IndexOf("CodexGuard-0.6.7-preview-portable.zip", StringComparison.Ordinal) < 0,
+                "The release build no longer performs the launcher self-test or has become version-name hardcoded.");
+        });
         Run("default read-only planner source is read-only", delegate
         {
             string projectRoot = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar)).FullName;
