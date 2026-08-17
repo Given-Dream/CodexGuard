@@ -1,0 +1,17 @@
+# Local build and packaged release output
+artifacts/
+release/
+
+# Visual Studio / .NET Framework transient files
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.pdb
+
+# Local logs and temporary files
+*.log
+*.tmp
+*.bak
+*~
