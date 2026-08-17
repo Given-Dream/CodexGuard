@@ -2,7 +2,7 @@
 
 Codex Guard 是一个面向 Windows 的本地权限管理器，用来把 Codex 的日常运行身份与管理员数据隔离，并为项目目录提供“可读取、可写入、可新建，但不可删除、不可重命名、不可改 ACL”的持久 NTFS 防护。
 
-当前版本：`0.6.7-preview`。它已经完成编译和自动测试，但**尚未由本次构建在真实账户/目录上完成端到端验收**。首次使用应先在可回滚的测试机或测试目录验证。固定数据盘、系统盘上的非 Windows 数据目录以及 Worker 顶层数据目录默认拒绝 Worker/Sandbox 写入、新建、删除、重命名和改 ACL；仅 Worker 的 `AppData`、`.codex`、已经存在的 `.cache` 以及显式激活项目保留写入。Windows、Program Files 与 ProgramData 继续由 Windows ACL 管理。0.6.7 将全部 NTFS 权限管理集中到非提升 `admin` 控制面：激活、撤销、默认只读、绑定/修复和策略导入都只能由安装时登记的 admin SID 提交，并再次经过 UAC 安全桌面与提升端复核；`CodexWorker` 只能查看状态和运行 Codex，无法提交 ACL 变更。写入 ACL 的受限主体仍只有 Worker 与 Sandbox，admin SID 不进入限制集合。便携界面与 `C:\Program Files\Codex Guard` 受保护辅助程序的版本必须完全一致；不一致时所有提升操作会在 UAC 前停止，并要求先安装/修复升级。最终确认后，UAC 提升端会显示不可取消的不定进度条、当前阶段、当前路径和已用时间；Windows 传播继承 ACL 时不伪造完成百分比，事务完成或自动回滚前不得强制结束。只有日志出现确认接受和操作成功两条证据，才视为 ACL 已应用。
+当前版本：`0.6.7-preview`。固定数据盘、系统盘上的非 Windows 数据目录以及 Worker 顶层数据目录默认拒绝 Worker/Sandbox 写入、新建、删除、重命名和改 ACL；仅 Worker 的 `AppData`、`.codex`、已经存在的 `.cache` 以及显式激活项目保留写入。Windows、Program Files 与 ProgramData 继续由 Windows ACL 管理。0.6.7 将全部 NTFS 权限管理集中到非提升 `admin` 控制面：激活、撤销、默认只读、绑定/修复和策略导入都只能由安装时登记的 admin SID 提交，并再次经过 UAC 安全桌面与提升端复核；`CodexWorker` 只能查看状态和运行 Codex，无法提交 ACL 变更。写入 ACL 的受限主体仍只有 Worker 与 Sandbox，admin SID 不进入限制集合。便携界面与 `C:\Program Files\Codex Guard` 受保护辅助程序的版本必须完全一致；不一致时所有提升操作会在 UAC 前停止，并要求先安装/修复升级。最终确认后，UAC 提升端会显示不可取消的不定进度条、当前阶段、当前路径和已用时间；Windows 传播继承 ACL 时不伪造完成百分比，事务完成或自动回滚前不得强制结束。只有日志出现确认接受和操作成功两条证据，才视为 ACL 已应用。
 
 ## 安全模型
 
